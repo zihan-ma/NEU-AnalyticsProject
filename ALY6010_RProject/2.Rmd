@@ -1,0 +1,58 @@
+---
+title: "Untitled"
+author: "Zihan Ma"
+date: "2023-02-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r pressure, echo=FALSE}
+# reshape the data frame into long format
+library(tidyr)
+mydata_long <- gather(mydata, key = "variable", value = "value", -category)
+
+# create the plot with bars cut into two parts
+ggplot(mydata_long, aes(x = category, y = value, fill = variable)) +
+  geom_bar(stat = "identity", position = "identity", width = 0.5) +
+  scale_fill_manual(values = c("blue", "red")) +
+  coord_flip() +
+  theme_classic()
+```
+
+```{r}
+# load the ggplot2 and maps packages
+library(ggplot2)
+library(maps)
+library(states)
+
+# load the data set of state-level statistics (included with ggplot2)
+state <- data.frame(state.name, state.x77)
+
+# create a heat map of the United States on each state
+ggplot(state, aes(map_id = region)) +
+  # fill the states with a color based on a variable (e.g., population density)
+  geom_map(aes(fill = density), map = state_map) +
+  expand_limits(x = state_map$long, y = state_map$lat) +
+  # set the color scale for the fill variable
+  scale_fill_gradient(low = "white", high = "red") +
+  # add state outlines to the plot
+  geom_map(map = state_map, color = "black", size = 0.2) +
+  # add a title and subtitle
+  labs(title = "Population Density by State", subtitle = "Data from U.S. Census Bureau") +
+  # remove the axis labels and legend
+  theme_void()
+```
+```{r}
+COVID19US_State_sum_deathrate <- cbind(COVID19US_State_sum, deathrate)
+
+ggplot(COVID19US_State_sum_deathrate, aes(x = state, y = deathrate)) +
+  geom_line() +
+  labs(title = "Death Rate Each State", x = "state", y = "Death Rate")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  scale_y_continuous(limits = c(0, 500))
+```
+

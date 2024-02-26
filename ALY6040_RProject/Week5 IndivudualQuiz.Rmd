@@ -1,0 +1,213 @@
+---
+title: "Week 5 Indivudual Quiz"
+author: "Zihan Ma"
+date: "2023-08-10"
+output: pdf_document
+---
+
+---
+title: "Relationship between User Reviews and Critic Reviews"
+output: html_document
+---
+
+## Scatterplot of User Reviews vs Critic Reviews
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+# Load necessary libraries
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+# library(visdat)
+library(rpart)
+library(rpart.plot,quietly = TRUE)
+```
+
+
+```{r}
+Oscar_2000_2018 <- read_csv("DataSets/Oscar_2000_2018.csv")
+# View(Oscar_2000_2018)
+```
+```{r}
+# Calculate the percentage of missing values for user_reviews
+percent_missing_user_reviews <- sum(is.na(Oscar_2000_2018$user_reviews)) / nrow(Oscar_2000_2018) * 100
+
+# Calculate the percentage of missing values for critic_reviews
+percent_missing_critic_reviews <- sum(is.na(Oscar_2000_2018$critic_reviews)) / nrow(Oscar_2000_2018) * 100
+
+percent_missing_user_reviews
+percent_missing_critic_reviews
+```
+```{r}
+# Remove rows with missing values in user_reviews and critic_reviews columns
+Oscar_2000_2018_cleaned <- Oscar_2000_2018[!is.na(Oscar_2000_2018$user_reviews) & !is.na(Oscar_2000_2018$critic_reviews), ]
+
+```
+
+
+```{r}
+# Plotting the scatterplot
+ggplot(Oscar_2000_2018_cleaned, aes(x=user_reviews, y=critic_reviews)) +
+  geom_point(alpha=0.5) +
+  ggtitle("Scatterplot of User Reviews vs Critic Reviews") +
+  xlab("User Reviews") +
+  ylab("Critic Reviews")
+```
+
+
+
+
+```{r}
+# Calculate Pearson's correlation coefficient
+correlation_coefficient_cleaned <- cor(Oscar_2000_2018_cleaned$user_reviews, Oscar_2000_2018_cleaned$critic_reviews)
+correlation_coefficient_cleaned
+```
+
+```{r}
+# Group by certificate and calculate average duration
+avg_duration_per_certificate <- Oscar_2000_2018 %>%
+  group_by(certificate) %>%
+  summarise(avg_duration = mean(duration, na.rm = TRUE))
+```
+
+```{r}
+# Plotting
+ggplot(avg_duration_per_certificate, aes(x=certificate, y=avg_duration)) +
+  geom_bar(stat="identity", fill="steelblue") +
+  ggtitle("Average Duration per Certificate") +
+  xlab("Certificate") +
+  ylab("Average Duration") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+# Split the genre column and gather them into a single column
+split_genres <- Oscar_2000_2018 %>%
+  mutate(genre = strsplit(as.character(genre), "\\|")) %>%
+  unnest(genre)
+
+# Count the frequency of each genre
+genre_counts <- split_genres %>%
+  group_by(genre) %>%
+  tally() %>%
+  arrange(-n)
+
+# Plotting the histogram
+ggplot(genre_counts, aes(x=reorder(genre, n), y=n)) +
+  geom_bar(stat="identity", fill="steelblue") +
+  coord_flip() +
+  ggtitle("Frequency of Each Genre") +
+  xlab("Genre") +
+  ylab("Frequency") +
+  theme_minimal()
+```
+
+
+```{r}
+# Removing columns with convention "Oscar_Best_XXX_won" except for "Oscar_Best_Picture_won"
+cols_to_remove <- grep("^Oscar_Best_.*_won$", names(Oscar_2000_2018), value = TRUE)
+cols_to_remove <- setdiff(cols_to_remove, "Oscar_Best_Picture_won")
+Oscar_2000_2018 <- Oscar_2000_2018[, !names(Oscar_2000_2018) %in% cols_to_remove]
+```
+
+```{r}
+# Convert target variable to numerical type
+Oscar_2000_2018$Oscar_Best_Picture_won <- ifelse(Oscar_2000_2018$Oscar_Best_Picture_won == "Yes", 1, 0)
+```
+
+
+
+```{r}
+# Identify columns with over 70% NAs
+cols_with_nas <- names(Oscar_2000_2018)[sapply(Oscar_2000_2018, function(col) {
+  mean(is.na(col)) > 0.7
+})]
+
+# Combine with high cardinality columns removal, if you want
+# Identify columns with high cardinality
+threshold <- 0.05 * nrow(Oscar_2000_2018)
+cols_high_cardinality <- names(Oscar_2000_2018)[sapply(Oscar_2000_2018, function(col) {
+  length(unique(col)) > threshold
+})]
+
+# Merge the two lists of columns to remove
+cols_to_remove <- unique(c(cols_with_nas, cols_high_cardinality))
+
+# Remove those columns from the dataset
+Oscar_2000_2018 <- Oscar_2000_2018[, !names(Oscar_2000_2018) %in% cols_to_remove]
+```
+
+
+```{r}
+# Splitting data based on year for training and testing
+train_data <- Oscar_2000_2018[Oscar_2000_2018$year <= 2017, ]
+test_data <- Oscar_2000_2018[Oscar_2000_2018$year == 2018, ]
+test_data$certificate[test_data$certificate == "TV-PG"] <- "PG"
+```
+
+```{r}
+tree_model <- rpart(Oscar_Best_Picture_won ~ ., data=train_data, control = rpart.control(maxdepth = 6))
+
+summary(tree_model)
+```
+
+
+
+```{r}
+# Visualize the decision tree with rpart.plot
+rpart.plot(tree_model, nn=TRUE)
+```
+
+
+```{r}
+# Predict on the test data
+predictions <- predict(tree_model, test_data[, !names(test_data) %in% "movie"], type="prob")[,2]  # Selecting the probability of class 1 (Yes)
+```
+
+```{r}
+# Find the movie in 2018 associated with the maximum predicted value
+most_likely_winner <- test_data$movie[which.max(predictions)]
+most_likely_winner
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

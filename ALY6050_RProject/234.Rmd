@@ -1,0 +1,15 @@
+
+```{r}
+library(tidyverse)
+```
+```{r}
+
+coin <- data.frame()
+# if(unif(0,1)>0.5),TRUE)
+
+sample(x = coins, size = 10000, replace = FALSE, prob = 0.5)
+  
+
+
+```
+
