@@ -1,0 +1,16 @@
+Flow of get_a_path_best_first_improved function.
+Start
+Is start the same as stop?
+If Yes:
+Print the path and distance.
+End.
+Mark start as visited and add to path.
+Any unvisited children for start?
+If No: End.
+Display start's children and unvisited ones.
+Calculate travel cost for each unvisited child.
+All children visited?
+If Yes: End.
+Pick nearest child and show it.
+Continue with nearest child as new start.
+End.

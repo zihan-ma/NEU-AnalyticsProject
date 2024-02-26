@@ -1,0 +1,167 @@
+---
+title: "work"
+output: 
+  word_document:
+    toc: yes
+date: "2023-07-26"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Preparation
+
+```{r}
+# load data
+df <- read.csv("listings.csv")
+
+# quantiles for price
+quantile(df$price, probs = c(1/3, 2/3))
+
+# classify the price into 3 groups
+# low: price <= 85
+# middle: 85 < price <= 164
+# high: price > 164
+df$group <- factor(ifelse(df$price <= 85, "low", 
+                   ifelse(df$price > 85 & df$price <= 164, "middle", "high")),
+                   levels = c("low", "middle", "high"))
+df$neighbourhood_group <- factor(df$neighbourhood_group)
+df$room_type <- factor(df$room_type)
+
+# split data into train(80%) and test(20%)
+set.seed(1)
+index <- sample(1:nrow(df), 0.8*nrow(df))
+train <- df[index, ]
+test <- df[-index, ]
+```
+
+# 1. Try Decision Tree, Random Forest and a form of Gradient Boosting Machine
+
+## Decision Tree
+
+```{r}
+library(rpart)
+library(rpart.plot)
+
+tree.fit <- rpart(group ~ neighbourhood_group + room_type + 
+                    minimum_nights + number_of_reviews, data = train)
+tree.fit
+rpart.plot(tree.fit)
+```
+
+## Random Forest
+
+```{r}
+library(randomForest)
+rf.fit <- randomForest(group ~ neighbourhood_group + room_type + 
+                      minimum_nights + number_of_reviews, data = train)
+rf.fit
+```
+
+## GBM
+
+```{r}
+library(gbm)
+
+gbm.fit <- gbm(group ~ neighbourhood_group + room_type + 
+                 minimum_nights + number_of_reviews, data = train)
+gbm.fit
+```
+
+# 2. Types of models you ran and compare them with each other for accuracy, run time etc.
+
+Decision trees and random forest models are commonly used for classification models. GBM gives the probability of each class, and the final result can be determined based on the probability.
+
+## Accuracy
+
+```{r}
+# Decision Tree
+tree.pred <- predict(tree.fit, test, type = "class")
+mean(tree.pred == test$group)
+
+# Random Forest
+rf.pred <- predict(rf.fit, test)
+mean(rf.pred == test$group)
+
+# GBM
+xgb.pred <- predict(gbm.fit, test)
+idx <- apply(xgb.pred, 1, which.max)
+predicted <- c('low', 'middle', 'high')[idx]
+mean(predicted == test$group)
+```
+
+Accuracy: GBM < Decision Tree < Random Forest
+
+## Running time
+
+```{r}
+library(ff)
+# Decision Tree
+system.time(rpart(group ~ neighbourhood_group + room_type + 
+                    minimum_nights + number_of_reviews, data = train))
+# Random Forest
+system.time(randomForest(group ~ neighbourhood_group + room_type + 
+                      minimum_nights + number_of_reviews, data = train))
+# GBM
+system.time(gbm(group ~ neighbourhood_group + room_type + 
+                 minimum_nights + number_of_reviews, data = train))
+```
+
+Run Time: Decision Tree < GBM < Random Forest
+
+# 3. Explain the models using the most important features (Feature importance graph)
+
+```{r}
+rpart.plot(tree.fit)
+```
+
+
+
+```{r}
+library(caret)
+varImpPlot(rf.fit)
+```
+
+```{r}
+summary(gbm.fit, n.trees = 1)
+```
+
+It can be seen that room_type and minium_nights are the most important features.
+The decision tree is divided according to the different values of the variables, and finally different classification results are obtained.
+
+# 4. Model Optimization techniques you used for hyper-parameter tuning
+
+```{r}
+tree.fit <- train(group ~ neighbourhood_group + room_type + 
+                      minimum_nights + number_of_reviews, data = train,
+                method = "rpart",
+                trControl = trainControl(method = "cv"))
+tree.fit
+```
+For decision tree model, cp = 0.02973359 is the best.
+
+It takes too long to run cross validation for random forest and gam model, and the result doesn't fit well. 
+
+That is, it is hard to optimize models.
+
+# 5. Discuss pros and cons of each model
+
+## Decision Trees
+
+Pros: the decision tree model is easy to understand and explain
+
+Cons: it is prone to overfitting and sensitive to small variations in the data
+
+## Random Forest
+
+Pros: random Forest model is robust to outliers and can reduce overfitting compared to a single decision tree.
+
+Cons: it is computationally expensive and can be difficult to interpret.
+
+## Gradient Boosting Machine (GBM)
+
+Pros: the gbm model can handle both categorical and numerical data.
+
+Cons: it is sensitive to noisy data.
+
