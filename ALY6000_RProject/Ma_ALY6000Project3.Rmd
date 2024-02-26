@@ -1,0 +1,431 @@
+---
+title: "Ma_ALY6000Project3"
+author: "Zihan Ma"
+date: "2023-02-06"
+output: html_document
+---
+
+<!--
+Title
+-->
+
+<P><BR>
+<CENTER>
+<FONT SIZE = 4, COLOR="#002FA7">
+<B>ALY6000 Introduction to Analytics</B>
+<BR><B>Northeastern University</B>
+<BR>Zihan Ma
+<BR>Date: `r format(Sys.time(), "%m - %d - %Y")` <!--or the time will show in chinese-->
+<P>Project Report
+</FONT>
+</CENTER>
+
+<!--
+Library Data
+-->
+<P><BR>
+
+```{r libraries data, message=FALSE, warning=FALSE}
+# Libraries used in this markdown
+library(rmarkdown)
+library(readxl)
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(magrittr)
+library(RColorBrewer)
+library(FSA)
+
+# Data imported from M2Project_Data.xlsx
+library(readxl)
+inchBio <- read_excel("DataSets/inchBio.xlsx")
+View(inchBio)
+```
+
+
+<!--
+Task 1
+How to apply summary and glimpse to data set.
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 1
+</B></FONT>
+<B>   How to apply summary and glimpse to data set.</B>
+
+```{r}
+# {r task1A} 
+
+task1A_table = summary(inchBio)
+```
+
+```{r}
+kbl(task1A_table) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+```{r}
+# {r task1B} 
+
+glimpse(inchBio)
+```
+
+
+<P>
+Task 1C:
+<P>
+For summary(), it gives out some basic attributes such as median, mean and min/max, so we can have a over all distribution for each row of the data.
+<P>
+For glimpse(), it prints out the first few line of the data frame with it's row and column number, so we can have a general picture for the outfit of the data set. 
+
+
+<!--
+Task 2
+Use in line R code to show column/row number
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 2
+</B></FONT>
+<B>   Use in line R code to show column/row number</B>
+
+```{r}
+# {r task2}
+inchBio_colNum = ncol(inchBio)
+inchBio_rowNum = nrow(inchBio)
+
+```
+
+<P>
+The column number of inchBio is ``r inchBio_colNum``, row number is ``r inchBio_rowNum``
+
+
+<!--
+Task 3
+How to extract a part of the data set
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 3
+</B></FONT>
+<B>How to extract a part of the data set</B>
+
+
+```{r, results='hide'}
+inchBio %>%
+   select(species, length, weight)%>%
+  headtail(5) %>%
+kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+<P>
+It always good to use '%>%' to prevent useless output when doing a multiple steps of data processing.
+
+<!--
+Task 4
+Use an traceable way to create a table.
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 4
+</B></FONT>
+<B>   Use an traceable way to create a table. </B>
+
+```{r}
+
+# {r task4} 
+
+# Create objects for statistical values of your choice
+
+inchBio_length = inchBio$length
+
+inchBio_weight = inchBio$weight
+
+# Create vectors with data
+
+inchBio_lengthSummary = summary(inchBio_length)
+
+inchBio_weightSummary = summary(inchBio_weight)
+
+# Create vectors for columns and row names
+
+task4_cNames = c("Min.","1st Qu.","Median", "Mean", "3rd Qu.", "Max.")
+
+task4_rNames = c("Length","Weight")
+
+# Create matrix
+
+task4_martix = rbind(inchBio_lengthSummary, inchBio_weightSummary)
+
+colnames(task4_martix) = task4_cNames
+rownames(task4_martix) = task4_rNames
+
+# Present table
+
+kbl(task4_martix, digits=2) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+
+```
+
+<P>
+I don't know why the code above constantly produce example table when the code running, but it doesn't affect the Knit results. Also for create this table, many values are stored in memory. It might become a issue when working on a much larger data sets.
+
+
+<!--
+Task 5
+Use 'filter' to separate the data set.
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 5
+</B></FONT>
+<B>   Use 'filter' to separate the data set.</B>
+
+```{r}
+# {r task5} 
+
+# Enter codes to filter each category of Species
+# Write the object name of your choice
+object1_BC = inchBio%>%
+  filter(species=="Black Crappie")
+object1_BG = inchBio%>%
+  filter(species=="Bluegill")
+object1_BM = inchBio%>%
+  filter(species=="Bluntnose Minnow")
+object1_ID = inchBio%>%
+  filter(species=="Iowa Darter")
+object1_LB = inchBio%>%
+  filter(species=="Largemouth Bass")
+object1_PS = inchBio%>%
+  filter(species=="Pumpkinseed")
+object1_YP = inchBio%>%
+  filter(species=="Yellow Perch")
+
+# Create objects for means
+# Write the object name of your choice
+
+Object_mean_lengthBC = mean(object1_BC$length)
+Object_mean_weightBC = mean(object1_BC$weight)
+
+Object_mean_lengthBG = mean(object1_BG$length)
+Object_mean_weightBG = mean(object1_BG$weight)
+
+
+Object_mean_lengthBM = mean(object1_BM$length)
+Object_mean_weightBM = mean(object1_BM$weight)
+
+
+Object_mean_lengthID = mean(object1_ID$length)
+Object_mean_weightID = mean(object1_ID$weight)
+
+
+Object_mean_lengthLB = mean(object1_LB$length)
+Object_mean_weightLB = mean(object1_LB$weight)
+
+
+Object_mean_lengthPS = mean(object1_PS$length)
+Object_mean_weightPS = mean(object1_PS$weight)
+
+
+Object_mean_lengthYP = mean(object1_YP$length)
+Object_mean_weightYP = mean(object1_YP$weight)
+
+
+# Create vectors with data 
+
+Object_mean_length = c(Object_mean_lengthBC, Object_mean_lengthBG, Object_mean_lengthBM, Object_mean_lengthID, Object_mean_lengthLB, Object_mean_lengthPS, Object_mean_lengthYP)
+
+Object_mean_weight = c(Object_mean_weightBC, Object_mean_weightBG, Object_mean_weightBM, Object_mean_weightID, Object_mean_weightLB, Object_mean_weightPS, Object_mean_weightYP)
+
+# Create matrix
+
+task5_martix = rbind(Object_mean_length, Object_mean_weight)
+
+task5_cNames = c("Black Crappie","Bluegill","Bluntnose Minnow", "Iowa Darter", "Largemouth Bass", "Pumpkinseed", "Yellow Perch")
+
+task5_rNames = c("Length","Weight")
+
+colnames(task5_martix) = task5_cNames
+rownames(task5_martix) = task5_rNames
+
+# Present table
+
+kbl(task5_martix, digits=2, row_label_position='c', align = "ccccccc") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+<P>
+There are way many useless values have been create in this task. It slowed down the generate process time and extend the code block length significantly. It must be a better way to do this, or it will be so hard to apply the same process to 1000+ variables tasks.
+
+
+
+<!--
+Task 6
+Use data frame to generate a table.
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 6
+</B></FONT>
+<B>   Use data frame to generate a table.</B>
+
+```{r}
+# {r task6} 
+# Enter codes to create table
+
+Tesk6_table = table(inchBio$species)
+Task6df = data.frame(table(inchBio$species))
+
+prob_Task6df = Task6df$Freq/nrow(inchBio)
+
+Task6df = data.frame(Tesk6_table) %>%
+rename("Species" = "Var1"  , "Frequency" = "Freq")%>%
+mutate("Cumulative Frequencies" = cumsum(Tesk6_table), 
+       "Probability" = prob_Task6df, 
+       "Cumulative Probability" = cumsum(prob_Task6df))
+#mutate("Cumulative Frequencies" = cumsum(Tesk6_table))%>%
+#mutate("Probability" = prob_Task6df)%>%
+#mutate("Cumulative Probability" = cumsum(prob_Task6df))
+
+Task6df$Probability = as.numeric(as.character(Task6df$Probability)) 
+
+# Enter codes to present table using kable
+
+kbl(Task6df, digits=2, row_label_position='c', align = "ccccccc") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+
+```
+
+
+<P>
+The cumsum() function helps a lot when getting cumulative data, also the exist of the mutate() function make the data frame data structure way easier to manage compare the matrix.
+
+
+
+<!--
+Task 7
+Generate pie chart/bar plot from Task 6's result.
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 7
+</B></FONT>
+<B>   Generate pie chart/bar plot from Task 6's result.</B>
+
+```{r}
+
+# {r task7} 
+# Use par() code to organize your graphs
+par(mfrow=c(1,2),mar = c(10, 8, 0.5, 2), mai = c(1,1,0.5,0.2))
+
+
+# Enter codes to prepare and present pie chart
+pieLabels = paste(unique(Task6df$Species),
+                  "\n",
+                  round(Task6df$Probability, 2),
+                  "%")
+
+pie(Task6df$Probability,
+    main = "Probability of Fish",
+    labels = pieLabels,
+    radius = 0.6,
+    col = terrain.colors(6),
+    border = "black",
+    lty = 1,
+    cex=0.6,
+    font = 1
+    )
+
+
+
+
+
+
+
+# Enter codes  to prepare and present bar plot
+
+task7_xNames = c("Black Crappie","Bluegill","Bluntnose Minnow", "Iowa Darter", "Largemouth Bass", "Pumpkinseed", "Yellow Perch")
+
+task7_graph = barplot(Task6df$Probability,
+main = "CP of Fish",
+
+las=2,
+#xlab = "Fish Type",
+ylab = "Cumulative Probability",
+names.arg = task7_xNames,
+col = brewer.pal(6, "Set3"),
+
+cex.axis = 0.8,
+cex = 0.5,
+ylim=c(0,0.5),
+horiz = FALSE)
+
+text(2, 6, "A label")
+#text(x = task7_xNames, y= task7_xNames, 
+#     label = round(Task6df$`Cumulative Probability`, 1),
+ # round(Task6df$`Cumulative Probability`, 1),
+ # cex=0.8,
+ # pos=1)
+#)
+
+
+```
+
+<P>
+I was enconter the issue that text() cannot edit thelable of the bar plot, I was managed to gives them names when generate the plot at the end. But the problom is still there.
+
+
+
+
+<!--
+Bibliography
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Bibliography
+</B></FONT>
+
+
+
+Prof Dee Chiluiza RPubs: Pie Charts
+https://rpubs.com/Dee_Chiluiza/995745
+
+Subset rows using column values
+https://dplyr.tidyverse.org/reference/filter.html
+
+DataDaft YouTube video: dplyr: filter
+https://www.youtube.com/watch?v=BkmYBBM2SdQ
+
+Subset columns using their names and types
+https://dplyr.tidyverse.org/reference/select.html
+
+Ed Boone YouTube video: Tidyverse in R… Select and Group By
+https://www.youtube.com/watch?v=timZ6erM7Z4
+<!--
+Appendix
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Appendix
+</B></FONT>
+
+<P>
+An R Markdown file has been attached to this report. The name of the file is "Ma_ALY6000Project3.Rmd"
+
+

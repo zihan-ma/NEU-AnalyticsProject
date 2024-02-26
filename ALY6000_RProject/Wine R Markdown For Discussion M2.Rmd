@@ -1,0 +1,320 @@
+---
+title: "Wine R Markdown For Discussion M2"
+author: "Zihan Ma"
+date: "2023-01-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraryData, message=FALSE}
+# Library used in this markdown
+library(dplyr)
+library(tidyverse)
+library(knitr)
+library(magrittr)
+library(gridExtra)   # For grid.arrange()
+library(grid)        # For grid tables
+library(DT)          # For datatables
+library(modeest)     # what is this for?
+library(readxl)
+# wine.xlsx is in this markdown
+wine <- read_excel("DataSets/wine.xlsx", 
+    sheet = "wine")
+View(wine)
+
+```
+
+```{r}
+# get WineType into vector
+WineType = wine$WineType
+#print(WineType)
+```
+
+```{r}
+#get Alcohol into vector
+Alcohol = wine$Alcohol
+#print(Alcohol)
+```
+
+```{r}
+#connect two vectors into one?
+#names(Alcohol) = WineType
+#print(Alcohol)
+```
+
+```{r}
+#connect two vectors into one!
+#this also print?
+
+#WineTypeAlcohol = matrix(c(WineType,Alcohol, nrow=178, byrow=TRUE, dimnames = list(c("Y","Z"), c())))
+#WineTypeAlcohol
+
+WineTypeAlcohol = cbind(WineType,Alcohol)
+#class(WineTypeAlcohol)
+#WineTypeAlcohol
+
+#print(c(WineTypeAlcohol["Cambridge","Alcohol"]))
+
+
+ 
+
+```
+```{r}
+# The worst way to get Alcohol data that is from Cambridge
+# extract row that meet cond from a matrix without using df or loop lol
+Cambridge_Alcohol = WineTypeAlcohol[WineTypeAlcohol[, "WineType"] == "Cambridge",]
+Cambridge_Alcohol = as.numeric(Cambridge_Alcohol[,2])
+#Cambridge_Alcohol
+#class(Cambridge_Alcohol)
+
+```
+```{r}
+# Alcohol data that is from California
+
+California_Alcohol = WineTypeAlcohol[WineTypeAlcohol[, "WineType"] == "California",]
+California_Alcohol = as.numeric(California_Alcohol[,2])
+#California_Alcohol
+#class(California_Alcohol)
+
+```
+```{r}
+# Alcohol data that is from Washington
+
+Washington_Alcohol = WineTypeAlcohol[WineTypeAlcohol[, "WineType"] == "Washington",]
+Washington_Alcohol = as.numeric(Washington_Alcohol[,2])
+#Washington_Alcohol
+#class(Washington_Alcohol)
+
+```
+```{r}
+
+# rotate the matrix
+#WineTypeAlcohol = t(WineTypeAlcoholRaw)
+#WineTypeAlcohol
+
+```
+
+```{r}
+# change row names
+
+#rownames(WineTypeAlcohol) = c("WineType","Alcohol")
+#WineTypeAlcohol
+
+```
+
+```{r}
+# example table from prof
+
+# have to do this again, cause vector wasn't really changed on top?
+# names(Alcohol) = WineType
+
+# dosesn't work, don't know why yet *&&^&$*(^^&$^
+kable(WineTypeAlcohol, 
+      format = "html",
+      table.attr = "style='width:40%;'")
+
+DT::datatable(WineTypeAlcohol)
+
+
+```
+
+```{r}
+# Data_Cambridge
+#Cambridge_Alcohol = as.character(WineTypeAlcohol[, 2]);
+#Cambridge_Alcohol = WineTypeAlcohol[WineType = "Cambridge"]
+#Cambridge_Alcohol
+```
+
+```{r}
+# Average
+Average = mean(Alcohol)
+#Average
+Average_Cambridge = mean(Cambridge_Alcohol)
+#Average_Cambridge
+Average_California = mean(California_Alcohol)
+#Average_California
+Average_Washington = mean(Washington_Alcohol)
+#Average_Washington
+```
+
+```{r}
+# Standard deviation
+StandardDeviation = sd(Alcohol)
+#StandardDeviation
+StandardDeviation_Cambridge = sd(Cambridge_Alcohol)
+#StandardDeviation_Cambridge
+StandardDeviation_California = sd(California_Alcohol)
+#StandardDeviation_California
+StandardDeviation_Washington = sd(Washington_Alcohol)
+#StandardDeviation_Washington
+```
+
+```{r}
+# Median
+Median = median(Alcohol)
+#Median
+Median_Cambridge = median(Cambridge_Alcohol)
+#Median_Cambridge
+Median_California = median(California_Alcohol)
+#Median_California
+Median_Washington = median(Washington_Alcohol)
+#Median_Washington
+```
+
+```{r}
+# Minimum value
+MinimumValue = min(Alcohol)
+#MinimumValue
+MinimumValue_Cambridge = min(Cambridge_Alcohol)
+#MinimumValue_Cambridge
+MinimumValue_California = min(California_Alcohol)
+#MinimumValue_California
+MinimumValue_Washington = min(Washington_Alcohol)
+#MinimumValue_Washington
+```
+
+```{r}
+# Maximum value
+MaximumValue = max(Alcohol)
+#MaximumValue
+MaximumValue_Cambridge = max(Cambridge_Alcohol)
+#MaximumValue_Cambridge
+MaximumValue_California = max(California_Alcohol)
+#MaximumValue_California
+MaximumValue_Washington = max(Washington_Alcohol)
+#MaximumValue_Washington
+```
+
+```{r}
+# Range
+Range = MaximumValue - MinimumValue
+#Range
+Range_Cambridge = MaximumValue_Cambridge - MinimumValue_Cambridge
+#Range_Cambridge
+Range_California = MaximumValue_California - MinimumValue_California
+#Range_California
+Range_Washington = MaximumValue_Washington - MinimumValue_Washington
+#Range_Washington
+```
+
+```{r}
+# 62th quantile
+# why 0.62?
+Quantile = quantile(Alcohol, 0.62)
+#Quantile
+#class(Quantile)
+Quantile_Cambridge = quantile(Cambridge_Alcohol, 0.62)
+#Quantile_Cambridge
+Quantile_California = quantile(California_Alcohol, 0.62)
+#Quantile_California
+Quantile_Washington = quantile(Washington_Alcohol, 0.62)
+#Quantile_Washington
+```
+
+```{r}
+# Create the vectors for all wine types
+Cambridge_Vector = c(Average_Cambridge, StandardDeviation_Cambridge, Median_Cambridge, MinimumValue_Cambridge, MaximumValue_Cambridge, Range_Cambridge, Quantile_Cambridge)
+#Cambridge_Vector
+California_Vector = c(Average_California, StandardDeviation_California, Median_California, MinimumValue_California, MaximumValue_California, Range_California, Quantile_California)
+#California_Vector
+Washington_Vector = c(Average_Washington, StandardDeviation_Washington, Median_Washington, MinimumValue_Washington, MaximumValue_Washington, Range_Washington, Quantile_Washington)
+#Washington_Vector
+
+```
+
+```{r}
+# create table for the processed value and round to 2 dim
+FinalTable = matrix(round(c(Cambridge_Vector, California_Vector, Washington_Vector), 2), nrow = 3, byrow = TRUE)
+
+FinalTable
+```
+
+```{r}
+# Create vectors for column and row names
+col_names = c("Average", "Standard Deviation", "Median", "MinimumValue", "MaximumValue", "Range", "Quantile")
+row_names = c("Cambridge", "California", "Washington")
+```
+```{r}
+# give col and row names
+colnames(FinalTable) = col_names
+rownames(FinalTable) = row_names
+#FinalTable
+```
+
+<div align="center">
+```{r}
+# make table looks nicer
+knitr::kable(FinalTable,
+             align = "c", 
+             digits = 2,
+             format = "html",
+             fixed_thead = T,
+             table.attr = "style='width:40%;'")
+
+DT::datatable(FinalTable,
+              caption = 'Table 1: Wine types and matching statics.',
+              options = list(
+                columnDefs = list(list(className = 'dt-center', targets = "_all"))
+            ),
+              width = 1000)
+
+```
+
+```{r}
+# Make a histogram for Alcohol with lines
+hist(Alcohol,
+     breaks = 20,
+     freq = FALSE,
+     xlab = "Alcohol (%)",
+     xlim = c(10,16),
+     border = "#3A68A7"
+     )
+lines(density(Alcohol), lwd = 2, col = 'red')
+
+```
+```{r}
+# get max length
+max_length <- max(length(Cambridge_Alcohol), length(California_Alcohol), length(Washington_Alcohol))
+max_length
+
+# EDIT VECTOR LENGTN
+length(Cambridge_Alcohol) = max_length
+length(California_Alcohol) = max_length
+length(Washington_Alcohol) = max_length
+
+# combine data box plot into one matrix
+compaireAlcohol = cbind(Cambridge_Alcohol, California_Alcohol, Washington_Alcohol)
+compaireAlcohol
+
+
+
+```
+
+
+```{r}
+label=c("Cambridge","California","Washington")
+# Make a box plot for Alcohol
+boxplot(compaireAlcohol, 
+        horizontal = TRUE,
+        box = "#3A68A7",
+        xlab = "Alcohol (%)",
+        main = "Box Plot of Alcohol",
+        col = rainbow(ncol(trees)),
+        names = label)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

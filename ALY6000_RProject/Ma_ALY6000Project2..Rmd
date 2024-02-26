@@ -1,0 +1,828 @@
+---
+title: "Ma_ALY6000Project2"
+author: "Zihan Ma"
+date: "01/22/2023"
+output: html_document
+---
+
+<!--
+Title
+-->
+
+<P><BR>
+<CENTER>
+<FONT SIZE = 4, COLOR="#002FA7">
+<B>ALY6000 Introduction to Analytics</B>
+<BR><B>Northeastern University</B>
+<BR>Zihan Ma
+<BR>Date: `r format(Sys.time(), "%m - %d - %Y")` <!--or the time will show in chinese-->
+<P>Project Report
+</FONT>
+</CENTER>
+
+<!--
+Library Data
+-->
+<P><BR>
+
+```{r libraries data, message=FALSE, warning=FALSE}
+# Libraries used in this markdown
+library(rmarkdown)
+library(readxl)
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(magrittr)
+library(RColorBrewer)
+
+# Data imported from M2Project_Data.xlsx
+library(readxl)
+M2Data <- read_excel("DataSets/M2Project_Data-1.xlsx", 
+    sheet = "M2Project_V2")
+```
+
+<!--
+Introduction
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Introduction
+</B></FONT>
+
+<P>
+<ol>
+  <li>The importance of descriptive and inferential statistics</li>
+  <P>
+  On Bradley University's web page, descriptive statistics is
+  included all the population, which means it can minimum the error compare to the 
+  reality.
+  <P>
+  The inferential statistics is doing much better in uncountable, large number population.
+  Which we hare or cannot to use descriptive statistics on it.
+  <li>Importance of proper data presentation</li>
+  <P>
+  In "Statistical relevance—relevant statistics, part II: presenting experimental data" 
+  by Bernd Klaus, he explained that the proper data presentation will strength the 
+  evidence of the analysis and publications. They also helps people find out the patterns 
+  and difference in your data set.
+  <li>Mention some practical applications of R in data analysis</li>
+  <P>
+  It easy to find the article that used R to make the chart on Google scholar. For example
+, the authors use R language to analyse their data in "An Empirical Data Analytics and Visualization for UBER Services: A Data Analysis Based Web Search Engine". And they used
+half of their introduction space to explain the advantage to use R for their analyse tool.
+</ol>
+
+<!--
+Task 1
+Gather total 10 record from data set.
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 1
+</B></FONT>
+<B>   Present the first 5 and the last 5 records from the dataset</B>
+
+```{r}
+
+first5m2 = head(M2Data, n = 5)
+last5m2 = tail(M2Data, n = 5)
+
+firstandlast5m2=rbind(first5m2, last5m2)
+
+kbl(firstandlast5m2) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+<P>
+In the ten observations here, we can see there are huge difference in profits, 
+and there isn't any obvious rule for these differences, I'm guessing a profit
+/sales chart could helpful for find out the parents, or we have to need to increase the sample number.
+
+
+<!--
+Task 2
+Give out Market's categories' frequencies
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 2
+</B></FONT>
+<B>   Present a table with all categories of Market and their frequencies</B>
+
+```{r}
+
+AllMarket = M2Data[, c('Market')]
+
+AllMarketFrequency = table(AllMarket)
+
+kbl(AllMarketFrequency) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+<P>
+The chart here shows the Africa's frequency is clearly lower than other area's frequencies.
+It could be affect by Africa's economics conduction deeply, which data that need is not include in this data set.
+
+
+<!--
+Task 3
+Give out a graph that shows Market's categories' frequencies
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 3
+</B></FONT>
+<B>   Present a bar graph with all categories of Market and their frequencies</B>
+
+
+```{r}
+plotAllMarketFrequency = barplot(AllMarketFrequency[order(AllMarketFrequency,decreasing = TRUE)], 
+                 main="Plot of All Market's Frequency",
+                 xlab="Market Frequency",
+                 ylab = "Market Name",
+                 border = "red",
+                 las = 1,
+                 cex.axis = 0.6,
+                 cex.names = 0.6,
+                 horiz = T,
+                 legend.text = rownames(AllMarketFrequency),
+                 space = 0.5,
+                 xlim = c(0,400),
+                 col = brewer.pal(8,"Set1")
+                 )
+text(AllMarketFrequency[order(AllMarketFrequency,decreasing = TRUE)], 
+     plotAllMarketFrequency, 
+     AllMarketFrequency[order(AllMarketFrequency,decreasing = TRUE)], 
+     cex=0.8, 
+     pos=4)
+
+```
+<P>
+There are almost equally difference between different area frequencies, that tell
+us we need to keep in mind that we have to treats all group of data differently because
+they have big number off compare to each other.
+
+<!--
+Task 4
+Use pie chart Market's categories' frequencies for Africa
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 4
+</B></FONT>
+<B>   Pie chart of product category frequencies in Africa</B>
+
+```{r}
+
+t4Africa = dplyr::filter(M2Data, Market == "Africa")
+
+Product_Categoryt4Africa = t4Africa[, c('Product_Category')]
+
+Product_Categoryt4AfricaFrequency = table(Product_Categoryt4Africa)
+
+pieLabels = paste(unique(sort(t4Africa$Product_Category)),
+                  "\n",
+                  round(Product_Categoryt4AfricaFrequency,1),
+                  "%")
+
+pie(Product_Categoryt4AfricaFrequency,
+    labels = pieLabels,
+    radius = 0.6,
+    col = terrain.colors(3),
+    border = "white",
+    lty = 1,
+    cex=0.8,
+    font = 3
+    )
+
+
+legend("bottomleft",
+       legend = paste(unique(sort(t4Africa$Product_Category))),
+       fill = terrain.colors(3),
+       border = "black")
+
+box(col="red")
+
+```
+
+<P>
+The plot shows that the major number of companies in Africa is focus on technology area.
+
+
+<!--
+Task 5
+Instructor's sample code
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 5
+</B></FONT>
+<B>   Reproduce codes given by instructor</B>
+
+```{r}
+
+task5_table = table(t4Africa$Product_SubCategory)
+
+t5bar = barplot(task5_table)
+
+text(y=table(t4Africa$Product_SubCategory),
+  t5bar,
+  table(t4Africa$Product_SubCategory),
+  cex=0.8,
+  pos=3)
+
+
+```
+
+<P>
+The default plot didn't show all labels properly, it's hard to provide any correct
+information from the plot.
+
+
+
+<!--
+Task 6
+Better version of task 5
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 6
+</B></FONT>
+<B>   Improve bar plot from task 5</B>
+
+```{r}
+
+task6_table = table(t4Africa$Product_SubCategory)
+
+par(mar = c(10,4,0.5,2))
+
+
+#t6bar = barplot(task6_table)
+
+
+barplot(task6_table,
+main = "Africa Product's Sub Category",
+las=2,
+# xlab = "Category",
+ylab = "Frequency",
+col = brewer.pal(9, "Set3"),
+ylim=c(0,18),
+horiz = FALSE)
+
+
+text(y=table(t4Africa$Product_SubCategory),
+  t5bar,
+  table(t4Africa$Product_SubCategory),
+  cex=0.8,
+  pos=3)
+
+
+```
+
+
+<P>
+There are many companies are tiring to sell phones in Africa. Which is technology
+relative product.
+
+
+
+<!--
+Task 7
+African Market's mean sales for each subcategory.
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 7
+</B></FONT>
+<B>   Mean sales per subcategory in the African Market</B>
+
+```{r}
+
+meanSales = tapply(t4Africa$Price, t4Africa$Product_SubCategory, mean)
+
+dotchart(meanSales)
+
+```
+
+<P>
+For the data set “iris”, the means are setosa: 1.462, versicolor: 4.260, virginica: 5.552.
+<P>
+We can see the phones have much higher mean number compare to other subcategory in the African Market. It could explain that why so much compines is selling phones in Africa.
+
+<!--
+Task 8
+The total sales of African Market for each Region 
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 8
+</B></FONT>
+<B>   Total sales per Region in the African Market</B>
+
+```{r}
+
+sumSales = tapply(t4Africa$Price, t4Africa$Product_SubCategory, sum)
+
+par(mar = c(8,4,0.5,2))
+
+barplot(sumSales,
+main = "Africa Product's Total Sales",
+las=2,
+# xlab = "Sum of Sales",
+ylab = "Sum of Sales",
+col = brewer.pal(9, "Set3"),
+cex.axis = 0.8,
+ylim=c(0,45000),
+horiz = FALSE)
+
+
+text(y=table(t4Africa$Product_SubCategory),
+  t5bar,
+  table(t4Africa$Product_SubCategory),
+  cex=1,
+  pos=3)
+
+```
+
+<P>
+The total sales plot of Africa is very same to Frequency plot we have above in Task 6.
+That proved these two group could strongly related to each other.
+
+
+
+<!--
+Task 9
+African Market's average shipping costs for each region
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 9
+</B></FONT>
+<B>   Mean shipping costs per Region in the African Market</B>
+
+```{r}
+meanShipping = tapply(t4Africa$ShippingCost, t4Africa$Product_SubCategory, mean)
+
+par(mar = c(8,4,0.5,2))
+
+barplot(meanShipping,
+main = "Africa Product's Average Shipping",
+las=2,
+# xlab = "Average Shipping",
+ylab = "Average Shipping",
+col = brewer.pal(9, "Set3"),
+cex.axis = 0.8,
+ylim=c(0,500),
+horiz = FALSE)
+
+
+text(y=table(t4Africa$Product_SubCategory),
+  t5bar,
+  table(t4Africa$Product_SubCategory),
+  cex=1,
+  pos=3)
+
+```
+
+<P>
+There isn't great difference between different shipping price in Africa. This data set
+ might not very valuable for analyics.
+
+
+
+<!--
+Task 10
+Describe what are integer, factor, double are numeric.
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 10
+</B></FONT>
+<B>   Descriptions of: integer, factor, double, numeric</B>
+
+
+<P>
+As the website "R for Health Data Science" said,
+<P>
+"Integers are numbers without decimal places (e.g., 1, 2, 3)"
+<P>
+"Double stands for “Double-precision floating-point” format (e.g., 1.234, 5.67890)."
+<P>
+"The values factor levels can take are fixed, and it have an order."
+<P>
+"Numbers are "R usually refers to numbers as numeric (or num)"
+
+
+<!--
+Task 11
+Instructor's example code.
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 11
+</B></FONT>
+<B>   Duplicate codes presented by instructor</B>
+
+```{r}
+
+par(mfcol = c(2, 1),
+    mai = c(1, 1, 0.2, 0.4),
+    mar = c(4, 4, 0.5, 2))
+
+
+
+boxplot(M2Data$Profits,
+        horizontal = T,
+        col = rainbow(ncol(trees)),
+        xlab = "Profits" ,
+        notch = TRUE,
+        main = "Profits Boxplot For Whole Dataset")
+
+hist(M2Data$Profits,
+     main = "Profits Barplot For Whole Dataset",
+     las=1,
+     ylim=c(0,350),
+     col = brewer.pal(12, "Set3"),
+     breaks = 50)
+
+
+
+
+
+
+```
+
+<P>
+From two plot we can see that there isn't too much off between profits. 
+Because more then 50% of data in box plot is concentrate at a short range compare to the distribution. In average most compiles are earning money, but not that much.
+<P>
+There are many off point on the box plot, but from bar plot we can know these off points are all ignoble.
+
+
+
+<!--
+Task 12
+Latin American market'P's profits
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 12
+</B></FONT>
+<B>   Profits in the Latin American market</B>
+
+
+
+```{r}
+
+t12LATAM = dplyr::filter(M2Data, Market == "LATAM")
+
+par(mfcol = c(2, 1),
+    mai = c(1, 1, 0.2, 0.4),
+    mar = c(4, 4, 0.5, 2))
+
+boxplot(t12LATAM$Profits,
+        horizontal = T,
+        col = rainbow(ncol(trees)),
+        xlab = "Profits" ,
+        notch = TRUE,
+        main = "Profits Boxplot For LATAM")
+
+hist(t12LATAM$Profits,
+     main = "Profits Barplot For LATAM",
+     las=1,
+     ylim=c(0,20),
+     col = brewer.pal(12, "Set3"),
+     breaks = 50)
+
+
+```
+<P>
+It's easy to notice from box plot, more than 50% companies are earning money in Latin America.
+<P>
+And there is only three companies are loosing money greatly(>=500).
+
+<!--
+Task 13
+Latin America's total sales for each region in a table
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 13
+</B></FONT>
+<B>   Table total sales per region in Latin America</B>
+
+```{r}
+t13LATAM =dplyr::filter(M2Data, Market == "LATAM")
+sumLATAMSales = tapply(t13LATAM$Price, t13LATAM$Product_SubCategory, sum)
+
+kbl(sumLATAMSales) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+
+<P>
+Same to the Africa, Latin America people is also spend a lot of money on buying phones.
+
+
+
+<!--
+Task 14
+Use box plot this time
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 14
+</B></FONT>
+<B>   Box plot for the profits per region in the Latin American market</B>
+
+```{r}
+
+boxplot(Profits~Region,
+data=t13LATAM,
+main="Boxplots for each region",
+xlab="Region",
+ylab="Profits",
+col="orange",
+border="brown"
+)
+
+
+```
+
+
+<P>
+From the 3 regions in the Latin American, we can see that their distribution are very same to each other. That means Latin American market doesn't not have obvious region differences.
+
+
+
+<!--
+Task 15
+Present cumulative frequencies and probabilities using table
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 15
+</B></FONT>
+<B>   Table with cumulative frequencies and probabilities</B>
+
+```{r}
+
+t15 = M2Data$Product_SubCategory%>%
+  table() %>%
+  as.data.frame()%>%
+  rename(Frequencies = Freq)%>%
+  mutate(CumulativeFrequency = cumsum(Frequencies),
+         Probability = Frequencies/nrow(M2Data),
+         CumulativeProbability = cumsum(Probability))
+
+knitr::kable(t15,
+             digits = 2,
+             caption = "Table with cumulative frequencies and probabilities for all region's Product subcategory",
+             fomat = "html",
+             table.attr = "style='width:40%;'",
+             align = 'c') %>%
+  kable_classic(bootstrap_option = "striped",
+                full_width = TRUE,
+                position = "center",
+                font_size = 12)
+
+```
+
+
+<P>
+Both Cumulative Frequency and Cumulative Probability are adding to the 1000/1.00 at the end.
+Which means there isn't missing observations.
+
+
+
+<!--
+Task 16
+Probability's graphs
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 16
+</B></FONT>
+<B>   Probability graphs</B>
+
+```{r}
+
+AllMarketFrequency = table(AllMarket)
+
+par(mfrow=c(2,2),mar = c(8, 8, 0.5, 2), mai = c(1,1,0.5,0.2))
+
+
+Product_Category = M2Data[, c('Product_Category')]
+Product_CategorFrequency = table(Product_Category)
+
+pieLabels = paste(M2Data$Product_Category,
+                  round(100*Product_CategorFrequency/sum(Product_CategorFrequency), 1)
+                  , "%")
+
+pie(t15$Frequencies,
+    labels = pieLabels,
+    main = "Frequency",
+    radius = 1.1,
+    col = terrain.colors(17),
+    border = "black",
+    lty = 1,
+    cex=0.4,
+    font = 3
+    )
+
+
+barplot(t15$CumulativeFrequency,
+main = "Cumulative Frequency",
+las=2,
+names.arg=c(t15$.),
+# xlab = "Average Shipping",
+ylab = "Frequency",
+col = brewer.pal(12, "Set3"),
+cex.axis = 0.6,
+cex.lab = 0.6,
+cex.names = 0.6,
+ylim=c(0,1200),
+horiz = FALSE)
+
+
+
+
+
+pie(t15$Probability,
+    labels = pieLabels,
+    main = "Probability",
+    radius = 1.1,
+    col = terrain.colors(17),
+    border = "black",
+    lty = 1,
+    cex=0.4,
+    font = 3
+    )
+
+
+barplot(t15$CumulativeProbability,
+main = "Cumulative Probability",
+las=2,
+names.arg=c(t15$.),
+# xlab = "Average Shipping",
+ylab = "Probability",
+col = brewer.pal(12, "Set3"),
+cex.axis = 0.6,
+cex.lab = 0.6,
+cex.names = 0.6,
+ylim=c(0,1),
+horiz = FALSE)
+
+
+
+
+```
+
+
+<P>
+From plots we can see 1/3 of total Product Category have very little effect to the tatal
+sample, which have very little area in the pie plot.
+
+
+
+<!--
+Task 17
+Free graph
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 17
+</B></FONT>
+<B>   Free graph</B>
+
+```{r}
+
+
+Africa = dplyr::filter(M2Data, Market == "Africa")
+AsiaPacific = dplyr::filter(M2Data, Market == "Asia Pacific")
+Europe = dplyr::filter(M2Data, Market == "Europe")
+LATAM = dplyr::filter(M2Data, Market == "LATAM")
+USCA = dplyr::filter(M2Data, Market == "USCA")
+
+AfrMarketFrequency = table(Africa$Product_Category)
+AsiMarketFrequency = table(AsiaPacific$Product_Category)
+EurMarketFrequency = table(Europe$Product_Category)
+LATMarketFrequency = table(LATAM$Product_Category)
+USCMarketFrequency = table(USCA$Product_Category)
+
+
+
+
+AddedMarketFrequency=rbind(AfrMarketFrequency, AsiMarketFrequency, EurMarketFrequency, LATMarketFrequency, USCMarketFrequency)
+
+barplot(AddedMarketFrequency,
+main = "Added Market Frequency",
+#names.arg=c(t15$.),
+# xlab = "Average Shipping",
+ylab = "Frequency",
+col = 1:5,
+cex.axis = 1,
+cex.lab = 1,
+cex.names = 1,
+ylim=c(0,450),
+horiz = FALSE)
+
+legend("topleft", 
+       legend = rownames(AddedMarketFrequency), 
+       fill = 1:5, ncol = 2,
+       cex = 0.75)
+
+```
+
+
+<P>
+Here is the plot that shows the frequency construction for each region for each Product Category. I believe it can shows the data more directlly.
+
+
+
+<!--
+Conclusions
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Conclusions
+</B></FONT>
+<B>   Present</B>
+
+<ol>
+
+<li>
+<P>
+I learned a lot from this project, especially for give out a good looking format for different plots such as box plot and bar plot. Also It's important to learn using dplyr::filter() to extract a part from the source data frame as a table very easily.
+
+<li>
+<P>
+By observe this project, we can easily knows that what is the most money earning products,
+and the product with list risk. From those observations, we can gives out the advice that 
+technology or phones is selling well in most region in the worlds wide.
+<li>
+<P>
+If I'm working on write a good report, I will try to get more recent data set, which will
+make my report affect less by any timely or random economics events.
+</ol>
+
+
+
+<!--
+Bibliography
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Bibliography
+</B></FONT>
+
+<P>
+<P>
+Descriptive statistics vs. inferential statistics. Bradley University Online. (2022, March 9). Retrieved January 30, 2023, from https://onlinedegrees.bradley.edu/blog/whats-the-difference-between-descriptive-and-inferential-statistics/ 
+<P>
+<P>
+Klaus, B. (2016). Statistical relevance—relevant statistics, part            ii            : Presenting experimental data. The EMBO Journal, 35(16), 1726–1729. https://doi.org/10.15252/embj.201694659 
+<P>
+<P>
+Pius, E. H. and R. (2021, January 15). R for Health Data Science. 2.2 Variable types and why we care. Retrieved January 30, 2023, from https://argoshare.is.ed.ac.uk/healthyr_book/chap02-vartypes.html 
+<P>
+<P>
+Sudar, K.(1970, January 1). An empirical data analytics and visualization for uber services: A data analysis based web search engine: Semantic scholar. 2022 International Conference on Computer Communication and Informatics (ICCCI). Retrieved January 30, 2023, from https://www.semanticscholar.org/paper/An-Empirical-Data-Analytics-and-Visualization-for-A-Sudar-Nagaraj/771b059c9ca9a7799ab2b19cd5ba7a83129aa218 
+<!--
+Appendix
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Appendix
+</B></FONT>
+
+<P>
+An R Markdown file has been attached to this report. The name of the file is "Ma_ALY6000Project2..Rmd"
+
+

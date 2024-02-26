@@ -1,0 +1,52 @@
+---
+title: "D3"
+author: "Zihan Ma"
+date: "2023-01-31"
+output: html_document
+---
+
+```{r libraries data, message=FALSE, warning=FALSE}
+# Libraries used in this markdown
+library(rmarkdown)
+library(readxl)
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(magrittr)
+library(RColorBrewer)
+
+
+```
+
+
+```{r}
+
+df = data.frame(
+  "Name" = c("Amiya", "Rosy", "Asish"),
+  "Gender" = c("Male", "Female", "Male")
+)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

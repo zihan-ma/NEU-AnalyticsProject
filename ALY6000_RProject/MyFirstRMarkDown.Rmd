@@ -1,0 +1,89 @@
+---
+title: "MyFirstRMarkdown"
+output: html_document
+date: "2023-01-18"
+---
+
+```{r libraryData}
+# LIbriarys used in this data
+library(readxl)
+library(dplyr)
+library(tidyverse)
+library(knitr)
+library(magrittr)
+
+```
+
+<CENTER>
+<B>
+<FONT size=S, color="#002FA7">
+<BR>
+Zihan Ma 
+<BR>
+Northeastern University 
+<BR>
+2023
+</CENTER>
+</B>
+</FONT>
+
+
+<B>
+<FONT size=S, color=pink>
+<P>
+INTRODUCTION
+</B>
+</FONT size=S, color=pink>
+<P>
+22333
+
+<B>
+<FONT size=S, color=pink>
+<P>
+ANALYSE
+</B>
+</FONT size=S, color=pink>
+
+<B>
+<FONT size=S, color=brown>
+<P>
+Task 1:
+</B>
+</FONT size=S, color=brown>
+
+
+<FONT size=S, color=black>
+<P>
+vsvscvdscs
+</FONT size=S, color=black>
+
+<FONT size=S, color=black>
+<PR>
+```{r}
+dplyr::glimpse(wine2023)
+
+#working with categorical variable
+
+WineType = wine2023$WineType
+
+as.data.frame(table(WineType))
+
+WineType
+  table()%%
+  hist()%%
+
+hst(phenols,
+    col = terrain.colour(12)
+    breaks = 50
+    main = ""
+    xlab = "")
+```
+</FONT size=S, color=black>
+
+
+
+
+
+
+
+

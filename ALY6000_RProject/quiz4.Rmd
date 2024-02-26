@@ -1,0 +1,54 @@
+---
+title: "quiz4"
+author: "Zihan Ma"
+date: "2023-02-17"
+output: html_document
+---
+
+```{r libraries data, message=FALSE, warning=FALSE}
+# Libraries used in this markdown
+library(rmarkdown)
+library(readxl)
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(magrittr)
+library(RColorBrewer)
+library(FSA)
+```
+
+```{r}
+dataQ2 = c(60, 60, 62, 62, 63, 64, 65, 66, 66, 67, 
+  68, 69, 69, 70, 70, 71, 72, 72, 73, 75, 76, 
+  76, 77, 77, 78, 78, 78, 79, 79, 79, 79, 81, 
+  81, 82, 83, 85, 91, 150, 92, 92, 194, 96, 97, 98)
+
+mean(dataQ2)
+median(dataQ2)
+```
+```{r}
+dataQ2 = c(60, 60, 62, 62, 63, 64, 65, 66, 66, 67, 
+  68, 69, 69, 70, 70, 71, 72, 72, 73, 75, 76, 
+  76, 77, 77, 78, 78, 78, 79, 79, 79, 79, 81, 
+  81, 82, 83, 85, 91, 150, 92, 92, 194, 96, 97, 98)
+
+dataQ2 %>%
+  density(adjust = 1.2)%>%
+  plot(las = 2)
+abline(v=mean(dataQ2),
+       col = "#A15515", lwd=3)
+
+```
+```{r}
+set3 = c(1,52,52,53,54,54,54,56,56,57,57,59,59,59,60,60,62,62,63,
+64,65,66,66,67,68,69,69,70,70,71,72,72,73,75,76,76,77,77,78,78,
+78,79,79,79,79,81,81,82,83,85,91,92,92,94,96,97,98,98,99,101,
+101,102,103,103,104,106,106,108,109,109,109,110,110,111,111,
+111,112,113,114,115,116,117,117,119,119,120,120,120,121,122,
+123,123,124,125,332,430)
+
+boxplot.stats(set3)$stats
+```
+

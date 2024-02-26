@@ -1,0 +1,439 @@
+---
+title: "Ma_ALY6000Project6"
+author: "Zihan Ma"
+date: "2023-02-18"
+output: html_document
+---
+
+<!--
+Title
+-->
+
+<P><BR>
+<CENTER>
+<FONT SIZE = 4, COLOR="#002FA7">
+<B>ALY6000 Introduction to Analytics</B>
+<BR><B>Northeastern University</B>
+<BR>Zihan Ma
+<BR>Date: `r format(Sys.time(), "%m - %d - %Y")` <!--or the time will show in chinese-->
+<P>Project Report
+</FONT>
+</CENTER>
+
+<!--
+Library Data
+-->
+<P><BR>
+
+```{r libraries data, message=FALSE, warning=FALSE}
+# Libraries used in this markdown
+library(rmarkdown)
+library(readxl)
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(magrittr)
+library(RColorBrewer)
+library(FSA)
+library(ggplot2)
+
+# Data imported from DataSets/M6_project_dataset(2023).xlsx
+library(readxl)
+M6dataset <- read_excel("DataSets/M6_project_dataset(2023).xlsx")
+```
+
+
+<!--
+Task 1
+How to apply summary and glimpse to data set.
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 1
+</B></FONT>
+<B>   How to apply summary and glimpse to data set.</B>
+
+```{r}
+# {r Task 1} 
+
+M6dataset_forsummary = subset(M6dataset, select = c(OrderDate, Product_Price, Quantity, Shipping_Cost_Each, Returns, Loss_Per_Return))
+
+summary(M6dataset_forsummary)%>%
+  kbl(align = "cccccc") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+M6dataset_forsummary2 = subset(M6dataset, select = -c(OrderDate, Product_Price, Quantity, Shipping_Cost_Each, Returns, ProductID, Loss_Per_Return))
+summary(M6dataset_forsummary2)
+
+```
+
+
+<P>
+Task 1C:
+<P>
+For summary(), it gives out some basic attributes such as median, mean and min/max, so we can have a over all distribution for each row of the data.
+<P>
+For glimpse(), it prints out the first few line of the data frame with it's row and column number, so we can have a general picture for the outfit of the data set. 
+
+
+<!--
+Task 2
+Use in line R code to show column/row number
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 2
+</B></FONT>
+<B>   Use in line R code to show column/row number</B>
+
+```{r}
+# {r Task 2}
+
+Shipping_Cost_Each = M6dataset$Shipping_Cost_Each
+Task2means = mean(Shipping_Cost_Each)
+Task2medians = median(Shipping_Cost_Each)
+
+par(mfcol=c(2,1))
+
+Shipping_Cost_Each %>%
+  boxplot(main="Invididual Shipping Cost Distribution Boxplot", 
+          xlab="Shipping Cost",
+          ylab="Frequeancy",
+          horizontal = T,
+          col="orange", 
+          border="brown")
+
+abline(v = Task2means, col = "red")
+text(x = Task2means, y = 0.8, labels = paste0("Mean = ", round(Task2means, 1)), pos = 3)
+abline(v = Task2medians, col = "red")
+text(x = Task2medians, y = 1.2, labels = paste0("Median = ", round(Task2medians, 1)), pos = 3)
+
+Shipping_Cost_Each %>%  
+  hist(main = "Invididual Shipping Cost Distribution Histogram",
+     xlab="Shipping Cost",
+     ylab="Frequeancy",
+     las=1,
+     ylim=c(0,170),
+     col = brewer.pal(12, "Set3"),
+     breaks = 40)
+
+abline(v = Task2means, col = "red")
+text(x = Task2means, y = 100, labels = paste0("Mean = ", round(Task2means, 1)), pos = 3)
+abline(v = Task2medians, col = "red")
+text(x = Task2medians, y = 50, labels = paste0("Median = ", round(Task2medians, 1)), pos = 3)
+
+```
+
+<P>
+The column number of inchBio is , row number is 
+
+
+<!--
+Task 3
+How to extract a part of the data set
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 3
+</B></FONT>
+<B>How to extract a part of the data set</B>
+
+
+```{r}
+# {r Task 3}
+
+# Calculate median and mean values for each shipping mode
+Task3medians <- tapply(M6dataset$Shipping_Cost_Each, M6dataset$Market, median)
+Task3means <- tapply(M6dataset$Shipping_Cost_Each, M6dataset$Market, mean)
+
+
+boxplot(Shipping_Cost_Each ~ Market, 
+        data = M6dataset, 
+        main = "Shipping Cost by Market",
+        xlab = "Markets", 
+        ylab = "Shipping Cost",
+        col="orange", 
+        border="brown")
+
+# Add point and text labels for median and mean values to the plot
+
+points(x = 1:nrow(Task3medians), y = Task3means, pch = 19, col = "blue")
+text(x = 1:nrow(Task3medians), y = Task3means, labels = formatC(Task3means, format = "f", digits = 1), pos = 1, col = "blue")
+
+text(x = 1:nrow(Task3medians), y = Task3medians, labels = formatC(Task3medians, format = "f", digits = 1), pos = 1, col = "red")
+
+
+```
+
+<P>
+It always good to use '%>%' to prevent useless output when doing a multiple steps of data processing.
+
+<!--
+Task 4
+Use an traceable way to create a table.
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 4
+</B></FONT>
+<B>   Use an traceable way to create a table. </B>
+
+```{r}
+
+# {r Task 4}
+
+meanShipping_Cost = tapply(M6dataset$Shipping_Cost_Each, M6dataset$Market, mean)
+
+
+par(mar = c(8,4,0.5,2))
+
+t3bar = barplot(meanShipping_Cost,
+main = "Average Shipping for Eanc Market Rergion",
+las=2,
+# xlab = "Average Shipping",
+ylab = "Average Shipping",
+col = brewer.pal(9, "Set3"),
+cex.axis = 0.8,
+ylim=c(0,38),
+horiz = FALSE)
+
+
+text(y=meanShipping_Cost,
+  t3bar,
+  round(meanShipping_Cost, 1),
+  cex=1,
+  pos=3)
+
+
+
+```
+
+<P>
+I don't know why the code above constantly produce example table when the code running, but it doesn't affect the Knit results. Also for create this table, many values are stored in memory. It might become a issue when working on a much larger data sets.
+
+```{r}
+# {r Task Extra}
+
+
+
+
+
+
+```
+
+
+<!--
+Task 5
+Use 'filter' to separate the data set.
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 5
+</B></FONT>
+<B>   Use 'filter' to separate the data set.</B>
+
+```{r}
+# Calculate median and mean values for each shipping mode
+Task5medians <- tapply(M6dataset$Shipping_Cost_Each, M6dataset$ShipMode, median)
+Task5means <- tapply(M6dataset$Shipping_Cost_Each, M6dataset$ShipMode, mean)
+
+# Create a boxplot of Shipping Cost versus Shipping Mode
+boxplot(Shipping_Cost_Each ~ ShipMode, 
+        data = M6dataset, 
+        main = "Shipping Cost by Shipping Mode",
+        xlab = "Shipping Mode", 
+        ylab = "Shipping Cost",
+        col="orange", 
+        border="brown")
+
+# Add point and text labels for median and mean values to the plot
+
+points(x = 1:nrow(Task5medians), y = Task5means, pch = 19, col = "blue")
+text(x = 1:nrow(Task5medians), y = (Task5means + 7), labels = formatC(Task5means, format = "f", digits = 2), pos = 1, col = "blue")
+text(x = 1:nrow(Task5medians), y = (Task5medians), labels = formatC(Task5medians, format = "f", digits = 2), pos = 1, col = "red")
+
+```
+
+<P>
+There are way many useless values have been create in this task. It slowed down the generate process time and extend the code block length significantly. It must be a better way to do this, or it will be so hard to apply the same process to 1000+ variables tasks.
+
+
+
+<!--
+Task 6
+Use data frame to generate a table.
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 6
+</B></FONT>
+<B>   Use data frame to generate a table.</B>
+
+```{r}
+
+# Create a new data set by adding the total sales column to the original data set
+Task6M6dataset <- M6dataset %>%
+  mutate(Total_sales = Product_Price * Quantity)
+
+# Display the variables including the new column Total sales using glimpse
+glimpse(Task6M6dataset[1, ])
+
+```
+
+
+<P>
+The cumsum() function helps a lot when getting cumulative data, also the exist of the mutate() function make the data frame data structure way easier to manage compare the matrix.
+
+
+
+<!--
+Task 7
+Generate pie chart/bar plot from Task 6's result.
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 7
+</B></FONT>
+<B>   Generate pie chart/bar plot from Task 6's result.</B>
+
+```{r}
+
+Task6M6dataset %>% 
+  group_by(Market) %>%
+  summarise(Total_sales = sum(Product_Price * Quantity)) %>%
+  kable(col.names = c("Market", "Total Sales"), align = "cc") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+Task6M6dataset %>% 
+  group_by(Segment) %>%
+  summarise(Total_sales = sum(Product_Price * Quantity)) %>%
+  kable(col.names = c("Segment", "Total Sales"), align = "cc") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+Task6M6dataset %>% 
+  group_by(Department) %>%
+  summarise(Total_sales = sum(Product_Price * Quantity)) %>%
+  kable(col.names = c("Department", "Total Sales"), align = "cc") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+
+
+
+
+```
+
+<P>
+I was enconter the issue that text() cannot edit thelable of the bar plot, I was managed to gives them names when generate the plot at the end. But the problom is still there.
+
+<!--
+Task 8
+Generate pie chart/bar plot from Task 6's result.
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Task 7
+</B></FONT>
+<B>   Generate pie chart/bar plot from Task 6's result.</B>
+
+```{r}
+
+summary_by_category = M6dataset %>%
+  group_by(Region, Market, Department) %>%
+  summarise(Price_mean = mean(Product_Price),
+            Quantity_mean = mean(Quantity),
+            Shipping_cost_mean = mean(Shipping_Cost_Each))
+
+# Create scatterplots of product price, quantity, and shipping cost
+scatterplot_matrix = ggplot(M6dataset, aes(x = Product_Price, y = Quantity)) +
+  geom_point() +
+  labs(x = "Product Price", y = "Quantity")
+
+scatterplot_matrix = scatterplot_matrix + ggtitle("Scatterplot Matrix") +
+  geom_point(aes(color = Shipping_Cost_Each), size = 2)
+
+# Create boxplots of product price, quantity, and shipping cost by country
+boxplot_price_by_Region = ggplot(M6dataset, aes(x = Region, y = Product_Price)) +
+  geom_boxplot() +
+  ggtitle("Product Price by Region") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  coord_cartesian(ylim = c(0, 1500)) 
+
+boxplot_quantity_by_Region = ggplot(M6dataset, aes(x = Region, y = Quantity)) +
+  geom_boxplot() +
+  ggtitle("Quantity by Region") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+boxplot_shipping_cost_by_Region = ggplot(M6dataset, aes(x = Region, y = Shipping_Cost_Each)) +
+  geom_boxplot() +
+  ggtitle("Shipping Cost by Region") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+
+# Print the results
+#cat("Summary statistics by country, market, and company department:\n")
+#kable(summary_by_category, format = "markdown")
+
+#cat("Scatterplot matrix of product price, quantity, and shipping cost:\n")
+print(scatterplot_matrix)
+
+#cat("Boxplots of product price, quantity, and shipping cost by country:\n")
+print(boxplot_price_by_Region)
+print(boxplot_quantity_by_Region)
+print(boxplot_shipping_cost_by_Region)
+
+
+
+```
+
+<P>
+I was enconter the issue that text() cannot edit thelable of the bar plot, I was managed to gives them names when generate the plot at the end. But the problom is still there.
+
+
+<!--
+Bibliography
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Bibliography
+</B></FONT>
+
+
+
+Prof Dee Chiluiza RPubs: Pie Charts
+https://rpubs.com/Dee_Chiluiza/995745
+
+Subset rows using column values
+https://dplyr.tidyverse.org/reference/filter.html
+
+DataDaft YouTube video: dplyr: filter
+https://www.youtube.com/watch?v=BkmYBBM2SdQ
+
+Subset columns using their names and types
+https://dplyr.tidyverse.org/reference/select.html
+
+Ed Boone YouTube video: Tidyverse in R… Select and Group By
+https://www.youtube.com/watch?v=timZ6erM7Z4
+<!--
+Appendix
+-->
+
+<P><BR>
+<FONT SIZE = 4, COLOR="#A11515"></B>
+Appendix
+</B></FONT>
+
+<P>
+An R Markdown file has been attached to this report. The name of the file is "Ma_ALY6000Project3.Rmd"
+
